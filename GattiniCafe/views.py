@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Categoria, Prodotto, Ordine
+from .models import Categoria, Prodotto, Ordine, OrdineProdotto
 from .permissions import IsAdminOrReadOnly, IsOwnerOrAdmin
 from .serializers import (
     RegisterSerializer,
@@ -19,6 +19,9 @@ from .serializers import (
     OrdineCreateSerializer,
     StatoUpdateSerializer,
 )
+
+from django.utils.timezone import now
+from django.db.models import Sum, Count, F
 
 
 # Auth -------------------------------------------------------------------
@@ -134,6 +137,13 @@ class OrdineViewSet(viewsets.ViewSet):
                 utente=request.user
             ).order_by('-data_ordine')
 
+        data_da = request.query_params.get('data_da')  # es. 2024-11-01
+        data_a = request.query_params.get('data_a')  # es. 2024-11-30
+        if data_da:
+            ordini = ordini.filter(data_ordine__date__gte=data_da)
+        if data_a:
+            ordini = ordini.filter(data_ordine__date__lte=data_a)
+
         serializer = OrdineReadSerializer(ordini, many=True)
         return Response(serializer.data)
 
@@ -178,3 +188,47 @@ class OrdineViewSet(viewsets.ViewSet):
             )
             return Response(read_serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Statistiche admin -------------------------------------------------------------------
+
+class AdminStatsView(APIView):
+    """
+    GET /api/admin/stats/  —  solo admin
+    Restituisce:
+      - numero ordini per stato
+      - prodotto più venduto
+      - incasso totale del giorno
+    """
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        # Ordini per stato
+        ordini_per_stato = (
+            Ordine.objects
+            .values('stato')
+            .annotate(totale_ordini=Count('id'))
+        )
+
+        # Prodotto più venduto (per quantità totale ordinata)
+        prodotto_piu_venduto = (
+            OrdineProdotto.objects
+            .values('prodotto__id', 'prodotto__nome')
+            .annotate(quantita_totale=Sum('quantita'))
+            .order_by('-quantita_totale')
+            .first()
+        )
+
+        # Incasso totale del giorno
+        oggi = now().date()
+        incasso_oggi = (
+            Ordine.objects
+            .filter(data_ordine__date=oggi, stato__in=['in_attesa', 'in_preparazione', 'completato'])
+            .aggregate(incasso=Sum('totale'))
+        )
+
+        return Response({
+            'ordini_per_stato': list(ordini_per_stato),
+            'prodotto_piu_venduto': prodotto_piu_venduto,
+            'incasso_oggi': incasso_oggi['incasso'] or 0.0,
+        })

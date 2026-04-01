@@ -8,6 +8,7 @@ from .views import (
     CategoriaViewSet,
     ProdottoViewSet,
     OrdineViewSet,
+    AdminStatsView,
 )
 
 router = DefaultRouter()
@@ -21,6 +22,7 @@ urlpatterns = [
     path('auth/login/', TokenObtainPairView.as_view(), name='auth-login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='auth-token-refresh'),
     path('auth/me/', MeView.as_view(), name='auth-me'),
+    path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
 
     # Menu + Ordini (via router) -------------------------------------------------------
     path('', include(router.urls)),
