@@ -23,6 +23,10 @@ from .serializers import (
 from django.utils.timezone import now
 from django.db.models import Sum, Count, F
 
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+
 
 # Auth -------------------------------------------------------------------
 
@@ -103,6 +107,33 @@ class ProdottoViewSet(viewsets.ModelViewSet):
 
         return qs
 
+    @action(detail=True, methods=['post'], url_path='immagine', permission_classes=[IsAuthenticated, IsAdminUser])
+    def upload_immagine(self, request, pk=None):
+        """POST /api/prodotti/{id}/immagine/ — solo admin"""
+        try:
+            prodotto = Prodotto.objects.get(pk=pk)
+        except Prodotto.DoesNotExist:
+            return Response({'detail': 'Prodotto non trovato.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if 'immagine' not in request.FILES:
+            return Response({'detail': 'Nessun file inviato. Usa il campo "immagine".'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        file = request.FILES['immagine']
+
+        # Controlla che sia un'immagine
+        allowed_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+        if file.content_type not in allowed_types:
+            return Response({'detail': 'Formato non supportato. Usa JPG, PNG, WEBP o GIF.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Salva il file in media/prodotti/
+        filename = f'prodotti/{prodotto.id}_{file.name}'
+        path = default_storage.save(filename, file)
+        prodotto.immagine_url = request.build_absolute_uri(settings.MEDIA_URL + path)
+        prodotto.save()
+
+        return Response({'immagine_url': prodotto.immagine_url}, status=status.HTTP_200_OK)
 
 # Ordini -------------------------------------------------------------------
 
