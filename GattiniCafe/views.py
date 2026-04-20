@@ -26,7 +26,18 @@ from django.db.models import Sum, Count, F
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.http import HttpResponse
 
+def home(request):
+    return HttpResponse("""
+        <h1>🐱 Gattini Cafe API</h1>
+        <p>Benvenuto!</p>
+        <ul>
+            <li><a href="/api/prodotti/">Prodotti</a></li>
+            <li><a href="/api/categorie/">Categorie</a></li>
+            <li><a href="/admin/">Admin</a></li>
+        </ul>
+    """)
 
 # Auth -------------------------------------------------------------------
 

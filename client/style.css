@@ -1,0 +1,124 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: sans-serif;
+  background: #fff8f0;
+  color: #333;
+  padding: 20px;
+}
+
+h1 {
+  color: #b5541b;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin: 20px 0 10px;
+  color: #b5541b;
+}
+
+h3 {
+  margin: 12px 0 6px;
+  color: #555;
+}
+
+section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+input {
+  padding: 8px;
+  margin: 4px 0 8px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  padding: 8px 16px;
+  background: #b5541b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+button:hover {
+  background: #8f3f10;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 6px;
+}
+
+.success {
+  color: green;
+  font-size: 0.9em;
+  margin-top: 6px;
+}
+
+.prodotto-card {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prodotto-card span {
+  font-size: 0.9em;
+  color: #666;
+}
+
+.prodotto-card .qty-input {
+  width: 60px;
+  padding: 4px;
+}
+
+.prodotto-prezzo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#status-bar {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 0.9em;
+  display: none;
+}
+
+#status-bar.logged-in {
+  background: #d4edda;
+  border-color: #28a745;
+}
+
+pre {
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
